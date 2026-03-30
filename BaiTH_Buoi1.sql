@@ -458,3 +458,182 @@ SELECT name AS "Ten khach hang",
 id AS "Ma khach hang"
 FROM s_customer
 ORDER BY id DESC;
+-- Câu 2
+SELECT first_name || ' ' || last_name AS "Employees",
+dept_id
+FROM s_emp
+WHERE dept_id IN (10, 50)
+ORDER BY first_name;
+-- Câu 3
+SELECT last_name, first_name
+FROM s_emp
+WHERE first_name LIKE '%S%'
+OR last_name LIKE '%S%';
+-- Câu 4
+SELECT userid, start_date
+FROM s_emp
+WHERE start_date BETWEEN TO_DATE('14/05/1990','DD/MM/YYYY')
+AND TO_DATE('26/05/1991','DD/MM/YYYY');
+-- câu 5
+SELECT last_name, salary
+FROM s_emp
+WHERE salary BETWEEN 1000 AND 2000;
+-- Câu 6
+SELECT last_name || ' ' || first_name AS "Employee Name",
+salary AS "Monthly Salary"
+FROM s_emp
+WHERE dept_id IN (31, 42, 50)
+AND salary > 1350;
+--Câu 7
+SELECT last_name, start_date
+FROM s_emp
+WHERE start_date BETWEEN TO_DATE('01/01/1991','DD/MM/YYYY')
+AND TO_DATE('31/12/1991','DD/MM/YYYY');
+-- Câu 8
+SELECT last_name, first_name
+FROM s_emp
+WHERE id NOT IN (SELECT DISTINCT manager_id
+FROM s_emp
+WHERE manager_id IS NOT NULL);
+-- Câu 9
+SELECT name
+FROM s_product
+WHERE name LIKE 'Pro%'
+ORDER BY name ASC;
+-- Câu 10
+SELECT name, short_desc
+FROM s_product
+WHERE LOWER(short_desc) LIKE '%bicycle%';
+-- Câu 11
+SELECT short_desc
+FROM s_product;
+-- Câu 12
+SELECT last_name || ' ' || first_name || ' (' || title || ')' AS "Nhan vien"
+FROM s_emp;
+-- Bài 3
+-- Câu 1
+SELECT id,
+last_name,
+ROUND(salary * 1.15, 2) AS "Luong moi"
+FROM s_emp;
+--Câu 2
+SELECT last_name,
+start_date,
+TO_CHAR(
+NEXT_DAY(ADD_MONTHS(start_date, 6), 'MONDAY'),
+'Ddspth "of" Month YYYY'
+) AS "Ngay xet tang luong"
+FROM s_emp;
+-- Câu 3
+SELECT name
+FROM s_product
+WHERE LOWER(name) LIKE '%ski%';
+-- Câu 4
+SELECT last_name,
+ROUND(MONTHS_BETWEEN(SYSDATE, start_date)) AS "So thang tham
+nien"
+FROM s_emp
+ORDER BY MONTHS_BETWEEN(SYSDATE, start_date) ASC;
+--Câu 5
+SELECT COUNT(DISTINCT manager_id) AS "So nguoi quan ly"
+FROM s_emp
+WHERE manager_id IS NOT NULL;
+-- Câu 6
+SELECT MAX(total) AS "Highest",
+MIN(total) AS "Lowest"
+FROM s_ord;
+-- Bai 4
+-- Câu 1
+SELECT p.name,
+p.id,
+i.quantity AS "ORDERED"
+FROM s_product p, s_item i
+WHERE p.id = i.product_id
+AND i.ord_id = 101;
+-- Câu 2
+SELECT c.id AS "Ma khach hang",
+o.id AS "Ma don hang"
+FROM s_customer c LEFT JOIN s_ord o
+ON c.id = o.customer_id
+ORDER BY c.id;
+-- Cau 3
+SELECT o.customer_id,
+i.product_id,
+i.quantity
+FROM s_ord o, s_item i
+WHERE o.id = i.ord_id
+AND o.total > 100000;
+-- Bài 5
+-- Câu 1
+SELECT manager_id AS "Ma quan ly",
+COUNT(id) AS "So nhan vien"
+FROM s_emp
+WHERE manager_id IS NOT NULL
+GROUP BY manager_id
+ORDER BY manager_id;
+-- Câu 2
+SELECT manager_id AS "Ma quan ly",
+COUNT(id) AS "So nhan vien"
+FROM s_emp
+WHERE manager_id IS NOT NULL
+GROUP BY manager_id
+HAVING COUNT(id) >= 20;
+-- Câu 3
+SELECT r.id AS "Ma vung",
+r.name AS "Ten vung",
+COUNT(d.id) AS "So phong ban"
+FROM s_region r, s_dept d
+WHERE r.id = d.region_id
+GROUP BY r.id, r.name
+ORDER BY r.id;
+-- Câu 4
+SELECT c.name AS "Ten khach hang",
+COUNT(o.id) AS "So don dat hang"
+FROM s_customer c, s_ord o
+WHERE c.id = o.customer_id
+GROUP BY c.id, c.name
+ORDER BY c.name;
+-- Câu 5
+SELECT c.name, COUNT(o.id) AS "So don hang"
+FROM s_customer c, s_ord o
+WHERE c.id = o.customer_id
+GROUP BY c.id, c.name
+HAVING COUNT(o.id) = (
+SELECT MAX(COUNT(id))
+FROM s_ord
+GROUP BY customer_id
+);
+-- Câu 6
+SELECT c.name, SUM(o.total) AS "Tong tien"
+FROM s_customer c, s_ord o
+WHERE c.id = o.customer_id
+GROUP BY c.id, c.name
+HAVING SUM(o.total) = (
+SELECT MAX(SUM(total))
+FROM s_ord
+GROUP BY customer_id
+);
+-- bài 6
+-- Câu 1
+SELECT last_name, first_name, start_date
+FROM s_emp
+WHERE dept_id IN (SELECT dept_id FROM s_emp WHERE first_name = 'Lan')
+AND first_name != 'Lan';
+-- Câu 2
+SELECT id, last_name, first_name, userid
+FROM s_emp
+WHERE salary > (SELECT AVG(salary) FROM s_emp);
+-- Câu 3
+SELECT id, last_name, first_name
+FROM s_emp
+WHERE salary > (SELECT AVG(salary) FROM s_emp)
+AND (UPPER(first_name) LIKE '%L%'
+OR UPPER(last_name) LIKE '%L%');
+-- Câu 4
+SELECT c.name
+FROM s_customer c
+WHERE NOT EXISTS (
+SELECT 1
+FROM s_ord o
+WHERE o.customer_id = c.id
+);
